@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    android:background="@color/list_bg_color">
+    
+    <TextView 
+        android:id="@+id/title"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        />
+    
+    <FrameLayout 
+        android:id="@+id/images"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        >
+        
+	        <ImageView 
+		        android:id="@+id/image"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:contentDescription="@string/lol_image"
+	        />
+	        
+	        <ImageView 
+	            android:id="@+id/image_gif"
+		        android:layout_height="50dp"
+		        android:layout_width="50dp"
+		        android:contentDescription="@string/lol_image"
+		        android:layout_gravity="center"
+		        android:background="@drawable/gif_icon"
+		        android:visibility="gone"
+	            />
+	        
+    </FrameLayout>
+    
+    <TextView 
+        android:id="@+id/votes"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textSize="12sp"
+        android:layout_below="@id/images"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="20dp"
+        />
+    
+    <TextView 
+        android:id="@+id/user_name"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@color/blue_color"
+        android:layout_below="@id/images"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        />
+    
+    
+    
+    <ImageView
+        android:id="@+id/list_divider1"
+        android:layout_below="@id/votes"
+       	android:layout_width="match_parent"
+       	android:layout_height="1dp"
+        android:background="@color/list_divider_color"
+        android:contentDescription="@string/lol_image" 
+    />
+    
+	<ImageView
+        android:id="@+id/list_divider2"
+        android:layout_below="@id/list_divider1"
+       	android:layout_width="match_parent"
+       	android:layout_height="1dp"
+        android:background="@color/white_color"
+        android:contentDescription="@string/lol_image" 
+    />
+
+</RelativeLayout>

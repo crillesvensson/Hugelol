@@ -1,0 +1,23 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/web"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.hugelol.activity.LolPostActivity" 
+    android:background="@color/black_color">
+    	<TextView 
+	        android:id="@+id/gif_title"
+	        android:layout_height="wrap_content"
+	        android:layout_width="wrap_content"
+	        android:textColor="@color/white_color"
+	        android:layout_centerHorizontal="true"
+	        />
+
+        <ImageView 
+            android:id="@+id/gif"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_below="@id/gif_title"
+            android:contentDescription="@string/lol_image"
+            />
+</RelativeLayout>
