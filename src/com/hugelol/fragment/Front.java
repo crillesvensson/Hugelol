@@ -15,6 +15,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -28,7 +30,7 @@ import com.hugelol.model.Hugelol;
 import com.hugelol.parser.HTTPResponseParser;
 import com.hugelol.parser.HugelolParser;
 
-public class Front extends ListFragment{
+public class Front extends ListFragment implements OnScrollListener{
     
     private List<Hugelol> hugelols;
     private ProgressDialog progressDialog;
@@ -47,6 +49,7 @@ public class Front extends ListFragment{
         footer = this.getLayoutInflater(savedInstance).inflate(R.layout.footer_list_layout, null);
         getListView().addFooterView(footer);
         this.setListShownNoAnimation(true);
+        getListView().setOnScrollListener(this);
         getListView().setOnItemClickListener(new OnItemClickListener(){
 
             @Override
@@ -126,18 +129,22 @@ public class Front extends ListFragment{
         if(adapter != null){
             setListAdapter(adapter);
             if(listState != null){
-                getListView().onRestoreInstanceState(listState);
+                ListView listView = getListView();
+                listView.onRestoreInstanceState(listState);
+                listView.setDividerHeight(0);
             }
         }
     }
     
     private void loadFrontPosts(boolean after){
         LoadFront loadFront = new LoadFront();
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Loading posts..");
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.show();
+        if(!after){
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Loading posts...");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
+        }
         loadFront.execute(after);
     }
 
@@ -150,11 +157,13 @@ public class Front extends ListFragment{
             boolean loadAfter = param[0];
             if(loadAfter){
                 url = url + "after="+after;
+            }else{
+                hugelols = new ArrayList<Hugelol>();
             }
             HTTPClient httpClient = new HTTPClient();
             try {
                 String[] array = HTTPResponseParser.doParse(httpClient.getResponseAsString(url));
-                hugelols = new ArrayList<Hugelol>();
+                
                 for(int i = 0; i < array.length; i++){
                     Hugelol hugelol = HugelolParser.doParse(array[i], getActivity());
                     if(i == 9){
@@ -173,6 +182,7 @@ public class Front extends ListFragment{
         protected void onPostExecute(Void result){
             if(isAdded()){
                 ListView listView = getListView();
+                Parcelable state = listView.onSaveInstanceState();
                 listView.setDividerHeight(0);
                 adapter = new HugelolAdapter(getActivity(), R.layout.list_layout, hugelols);
                 setListAdapter(adapter);
@@ -180,7 +190,19 @@ public class Front extends ListFragment{
                 if(progressDialog.isShowing()){
                     progressDialog.dismiss();
                 }
+                listView.onRestoreInstanceState(state);
             }
         }  
+    }
+
+    @Override
+    public void onScroll(AbsListView arg0, int arg1, int arg2, int arg3) {
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView listView, int scrollState) {
+        if (listView.getLastVisiblePosition() >= listView.getCount() - 1) {
+            loadFrontPosts(true);
+        }
     }
 }

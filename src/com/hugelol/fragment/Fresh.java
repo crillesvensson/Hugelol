@@ -2,13 +2,6 @@ package com.hugelol.fragment;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.hugelol.R;
-import com.hugelol.activity.LolPostActivity;
-import com.hugelol.adapter.HugelolAdapter;
-import com.hugelol.http.HTTPClient;
-import com.hugelol.model.Hugelol;
-import com.hugelol.parser.HTTPResponseParser;
-import com.hugelol.parser.HugelolParser;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -21,12 +14,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class Fresh extends ListFragment{
+import com.hugelol.R;
+import com.hugelol.activity.LolPostActivity;
+import com.hugelol.adapter.HugelolAdapter;
+import com.hugelol.http.HTTPClient;
+import com.hugelol.model.Hugelol;
+import com.hugelol.parser.HTTPResponseParser;
+import com.hugelol.parser.HugelolParser;
+
+public class Fresh extends ListFragment implements OnScrollListener{
     
     private List<Hugelol> hugelols;
     private ProgressDialog progressDialog;
@@ -44,6 +47,7 @@ public class Fresh extends ListFragment{
         setListAdapter(null);
         getListView().addFooterView(footer);
         this.setListShownNoAnimation(true);
+        getListView().setOnScrollListener(this);
         getListView().setOnItemClickListener(new OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position,
@@ -117,18 +121,22 @@ public class Fresh extends ListFragment{
         if(adapter != null){
             setListAdapter(adapter);
             if(listState != null){
-                getListView().onRestoreInstanceState(listState);
+                ListView listView = getListView();
+                listView.onRestoreInstanceState(listState);
+                listView.setDividerHeight(0);
             }
         }
     }
     
     private void loadFreshPosts(boolean after){
         LoadFresh loadFresh = new LoadFresh();
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Loading posts..");
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.show();
+        if(!after){
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Loading posts...");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
+        }
         loadFresh.execute(after);
     }
     
@@ -139,11 +147,12 @@ public class Fresh extends ListFragment{
             boolean loadAfter = params[0];
             if(loadAfter){
                 url += "after=" + after;
+            }else{
+                hugelols = new ArrayList<Hugelol>();
             }
             HTTPClient httpClient = new HTTPClient();
             try {
                 String[] array = HTTPResponseParser.doParse(httpClient.getResponseAsString(url));
-                hugelols = new ArrayList<Hugelol>();
                 for(int i = 0; i < array.length; i++){
                     Hugelol hugelol = HugelolParser.doParse(array[i], getActivity());
                     if(i == 9){
@@ -162,6 +171,7 @@ public class Fresh extends ListFragment{
         protected void onPostExecute(Void result){
             if(isAdded()){
                 ListView listView = getListView();
+                Parcelable state = listView.onSaveInstanceState();
                 listView.setDividerHeight(0);
                 adapter = new HugelolAdapter(getActivity(), R.layout.list_layout, hugelols);
                 setListAdapter(adapter);
@@ -169,8 +179,19 @@ public class Fresh extends ListFragment{
                 if(progressDialog.isShowing()){
                     progressDialog.dismiss();
                 }
+                listView.onRestoreInstanceState(state);
             }
         }
     }
     
+    @Override
+    public void onScroll(AbsListView arg0, int arg1, int arg2, int arg3) {
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView listView, int scrollState) {
+        if (listView.getLastVisiblePosition() >= listView.getCount() - 1) {
+            loadFreshPosts(true);
+        }
+    }
 }

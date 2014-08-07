@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" 
-    android:background="@color/list_bg_color">
+    android:paddingBottom="30dp"
+    android:background="@color/black_color">
     
     <TextView 
         android:id="@+id/title"
@@ -10,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_alignParentLeft="true"
         android:textStyle="bold"
+        android:textColor="@color/white_color"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp"
         android:layout_marginRight="20dp"
@@ -50,10 +52,10 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:textSize="12sp"
+        android:textColor="@color/white_color"
         android:layout_below="@id/images"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="20dp"
-        android:layout_marginBottom="20dp"
         />
     
     <TextView 
@@ -66,25 +68,5 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="20dp"
         />
-    
-    
-    
-    <ImageView
-        android:id="@+id/list_divider1"
-        android:layout_below="@id/votes"
-       	android:layout_width="match_parent"
-       	android:layout_height="1dp"
-        android:background="@color/list_divider_color"
-        android:contentDescription="@string/lol_image" 
-    />
-    
-	<ImageView
-        android:id="@+id/list_divider2"
-        android:layout_below="@id/list_divider1"
-       	android:layout_width="match_parent"
-       	android:layout_height="1dp"
-        android:background="@color/white_color"
-        android:contentDescription="@string/lol_image" 
-    />
 
 </RelativeLayout>
