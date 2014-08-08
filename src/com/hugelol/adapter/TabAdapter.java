@@ -1,12 +1,10 @@
 package com.hugelol.adapter;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-
-import com.hugelol.fragment.Fresh;
-import com.hugelol.fragment.Front;
-import com.hugelol.fragment.Rising;
+import com.hugelol.fragment.Posts;
 
 public class TabAdapter extends FragmentPagerAdapter{
 
@@ -16,16 +14,23 @@ public class TabAdapter extends FragmentPagerAdapter{
 
     @Override
     public Fragment getItem(int selected) {
+        Posts posts = new Posts();
+        Bundle args = new Bundle();
         switch(selected){
             case 0:
-                return new Front();
+                args.putString("url", "http://hugelol.com/api/front.php?");
+                break;
             case 1:
-                return new Rising();
+                args.putString("url", "http://hugelol.com/api/rising.php?");
+                break;
             case 2:
-                return new Fresh();
+                args.putString("url", "http://hugelol.com/api/fresh.php?");
+                break;
             default:
-                return new Front();
+                args.putString("url", "http://hugelol.com/api/front.php?");
         }
+        posts.setArguments(args);
+        return posts;
     }
 
     @Override

@@ -15,12 +15,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
-
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView.OnItemClickListener;
 import com.hugelol.R;
 import com.hugelol.activity.LolPostActivity;
 import com.hugelol.adapter.HugelolAdapter;
@@ -29,46 +28,54 @@ import com.hugelol.model.Hugelol;
 import com.hugelol.parser.HTTPResponseParser;
 import com.hugelol.parser.HugelolParser;
 
-public class Fresh extends ListFragment implements OnScrollListener{
+public class Posts extends ListFragment implements OnScrollListener{
     
+    private String url;
     private List<Hugelol> hugelols;
     private ProgressDialog progressDialog;
     private HugelolAdapter adapter;
     private Integer after;
     private boolean isVisible;
     private boolean isCreated;
+    private View footer;
     private Parcelable listState;
     
     @Override
     public void onActivityCreated(Bundle savedInstance){
         super.onActivityCreated(savedInstance);
+        this.url = this.getArguments().getString("url");
         setHasOptionsMenu(true);
-        View footer = getLayoutInflater(savedInstance).inflate(R.layout.footer_list_layout, null);
         setListAdapter(null);
+        footer = this.getLayoutInflater(savedInstance).inflate(R.layout.footer_list_layout, null);
         getListView().addFooterView(footer);
         this.setListShownNoAnimation(true);
         getListView().setOnScrollListener(this);
         getListView().setOnItemClickListener(new OnItemClickListener(){
+
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position,
                     long arg3) {
+                Hugelol lolPost = hugelols.get(position);
                 Intent intent = new Intent(getActivity(), LolPostActivity.class);
-                Hugelol hugelol = hugelols.get(position);
-                intent.putExtra("url", hugelol.getUrl());
-                intent.putExtra("title", hugelol.getTitle());
+                intent.putExtra("url", lolPost.getUrl());
+                intent.putExtra("title", lolPost.getTitle());
                 startActivity(intent);
+                
             }
+            
         });
-        
         Button loadMore = (Button)footer.findViewById(R.id.load_more_button);
         loadMore.setOnClickListener(new OnClickListener(){
+
             @Override
             public void onClick(View v) {
-                loadFreshPosts(true);
+                loadPosts(true);
+                
             }
-        }); 
+            
+        });
         if(isVisible && after == null){
-            loadFreshPosts(false);
+            loadPosts(false);
         }
         isCreated = true;
     }
@@ -77,9 +84,9 @@ public class Fresh extends ListFragment implements OnScrollListener{
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            isVisible = isVisibleToUser;
+            isVisible = isVisibleToUser; 
             if(isCreated && after == null){
-                loadFreshPosts(false);
+                loadPosts(false);
             }
         }
         else {  
@@ -88,9 +95,15 @@ public class Fresh extends ListFragment implements OnScrollListener{
     }
     
     @Override
+    public void onPause(){
+        super.onPause();
+        listState = getListView().onSaveInstanceState();
+    }
+    
+    @Override
     public void onDestroyView(){
         super.onDestroyView();
-        isCreated = false;
+        isCreated = false; 
     }
     
     @Override
@@ -103,16 +116,11 @@ public class Fresh extends ListFragment implements OnScrollListener{
     public boolean onOptionsItemSelected(MenuItem menu){
         int id = menu.getItemId();
         if(id == R.id.refresh){
-            loadFreshPosts(false);
+            loadPosts(false);
             return true;
         }
         return super.onOptionsItemSelected(menu);
-    }
-    
-    @Override
-    public void onPause(){
-        super.onPause();
-        listState = getListView().onSaveInstanceState();
+        
     }
     
     @Override
@@ -128,8 +136,8 @@ public class Fresh extends ListFragment implements OnScrollListener{
         }
     }
     
-    private void loadFreshPosts(boolean after){
-        LoadFresh loadFresh = new LoadFresh();
+    private void loadPosts(boolean after){
+        LoadPosts loadFront = new LoadPosts();
         if(!after){
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage("Loading posts...");
@@ -137,28 +145,29 @@ public class Fresh extends ListFragment implements OnScrollListener{
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
         }
-        loadFresh.execute(after);
+        loadFront.execute(after);
     }
-    
-    private class LoadFresh extends AsyncTask<Boolean, Void, Void>{
+
+    private class LoadPosts extends AsyncTask<Boolean, Void, Void>{
+
         @Override
-        protected Void doInBackground(Boolean... params) {
-            String url = "http://hugelol.com/api/fresh.php?";
-            boolean loadAfter = params[0];
+        protected Void doInBackground(Boolean... param) {            
+            boolean loadAfter = param[0];
             if(loadAfter){
-                url += "after=" + after;
+                url = url + "after="+after;
             }else{
                 hugelols = new ArrayList<Hugelol>();
             }
             HTTPClient httpClient = new HTTPClient();
             try {
                 String[] array = HTTPResponseParser.doParse(httpClient.getResponseAsString(url));
+                
                 for(int i = 0; i < array.length; i++){
                     Hugelol hugelol = HugelolParser.doParse(array[i], getActivity());
                     if(i == 9){
                         after = hugelol.getId();
                     }
-                    hugelols.add(hugelol); 
+                    hugelols.add(hugelol);
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
@@ -175,15 +184,15 @@ public class Fresh extends ListFragment implements OnScrollListener{
                 listView.setDividerHeight(0);
                 adapter = new HugelolAdapter(getActivity(), R.layout.list_layout, hugelols);
                 setListAdapter(adapter);
-                adapter.notifyDataSetChanged(); 
+                adapter.notifyDataSetChanged();  
                 if(progressDialog.isShowing()){
                     progressDialog.dismiss();
                 }
                 listView.onRestoreInstanceState(state);
             }
-        }
+        }  
     }
-    
+
     @Override
     public void onScroll(AbsListView arg0, int arg1, int arg2, int arg3) {
     }
@@ -191,7 +200,8 @@ public class Fresh extends ListFragment implements OnScrollListener{
     @Override
     public void onScrollStateChanged(AbsListView listView, int scrollState) {
         if (listView.getLastVisiblePosition() >= listView.getCount() - 1) {
-            loadFreshPosts(true);
+            loadPosts(true);
         }
     }
+
 }
