@@ -15,11 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+
 import com.hugelol.R;
 import com.hugelol.activity.LolPostActivity;
 import com.hugelol.adapter.HugelolAdapter;
@@ -27,6 +30,8 @@ import com.hugelol.http.HTTPClient;
 import com.hugelol.model.Hugelol;
 import com.hugelol.parser.HTTPResponseParser;
 import com.hugelol.parser.HugelolParser;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
 public class Posts extends ListFragment implements OnScrollListener{
     
@@ -53,14 +58,30 @@ public class Posts extends ListFragment implements OnScrollListener{
         getListView().setOnItemClickListener(new OnItemClickListener(){
 
             @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position,
+            public void onItemClick(AdapterView<?> arg0, View view, int position,
                     long arg3) {
                 Hugelol lolPost = hugelols.get(position);
-                Intent intent = new Intent(getActivity(), LolPostActivity.class);
-                intent.putExtra("url", lolPost.getUrl());
-                intent.putExtra("title", lolPost.getTitle());
-                startActivity(intent);
-                
+                if(lolPost.getType() == 2){
+                    final ImageView image = (ImageView)view.findViewById(R.id.image);
+                    final ImageView gifImage = (ImageView)view.findViewById(R.id.gif_image);
+                    ImageView gif = (ImageView)view.findViewById(R.id.image_gif);
+                    gif.setVisibility(View.GONE);
+                    final ProgressBar loading = (ProgressBar)view.findViewById(R.id.loading);
+                    loading.setVisibility(View.VISIBLE);
+                    Ion.with(gifImage).load(lolPost.getUrl()).setCallback(new FutureCallback<ImageView>(){
+                        @Override
+                        public void onCompleted(Exception arg0, ImageView view) {
+                            image.setVisibility(View.GONE);
+                            gifImage.setVisibility(View.VISIBLE);
+                            loading.setVisibility(View.GONE);
+                        }
+                    });
+                }else{
+                    Intent intent = new Intent(getActivity(), LolPostActivity.class);
+                    intent.putExtra("url", lolPost.getUrl());
+                    intent.putExtra("title", lolPost.getTitle());
+                    startActivity(intent);
+                }
             }
             
         });

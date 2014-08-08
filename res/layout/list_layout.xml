@@ -36,14 +36,30 @@
 	        />
 	        
 	        <ImageView 
+		        android:id="@+id/gif_image"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:visibility="gone"
+		        android:contentDescription="@string/lol_image"
+	        />
+	        
+	        <ImageView 
 	            android:id="@+id/image_gif"
-		        android:layout_height="50dp"
-		        android:layout_width="50dp"
+		        android:layout_height="70dp"
+		        android:layout_width="70dp"
 		        android:contentDescription="@string/lol_image"
 		        android:layout_gravity="center"
 		        android:background="@drawable/gif_icon"
 		        android:visibility="gone"
 	            />
+	        
+	        <ProgressBar
+		        android:id="@+id/loading"
+		        android:layout_width="50dp"
+		        android:layout_height="50dp"
+		        android:visibility="gone"
+		        android:layout_gravity="center"
+        	 />
 	        
     </FrameLayout>
     
